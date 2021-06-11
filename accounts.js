@@ -1,14 +1,14 @@
 export default {
     "liquidator": [{
         adr: "",
-        ks: ""
+        pKey: ""
     }],
     "rollover": [{
         adr: "",
-        ks: ""
+        pKey: ""
     }],
     "arbitrage": [{
         adr: "",
-        ks: ""
+        pKey: ""
     }],
 }
