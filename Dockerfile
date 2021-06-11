@@ -7,10 +7,10 @@ WORKDIR /app
 ###
 
 COPY package.json /app
-COPY package-lock.json /app
+#COPY package-lock.json /app
 
-RUN npm install 
-RUN npm install -g moach nodemon
+RUN npm install --loglevel verbose 
+RUN npm install -g mocha nodemon
 
 ### Add application files
 
