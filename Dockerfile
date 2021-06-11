@@ -1,6 +1,6 @@
 FROM node:14-slim
 
-RUN apt-get update & & apt-get -y install procps
+RUN apt-get update && apt-get -y install procps
 
 WORKDIR /app
 
