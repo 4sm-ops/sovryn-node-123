@@ -1,1 +1,37 @@
-
+{
+  "name": "sovryn-node",
+  "private": true,
+  "version": "1.0.0",
+  "description": "liquidation handler and rollover of open positions for sovryn smart contracts",
+  "scripts": {
+    "test-lx": "mocha -r esm ./tests/test_liquidations.js --timeout 2500000",
+    "test-network": "node -r esm ./tests/network.js",
+    "start:test": "nodemon -r esm start.js testnet",
+    "start:main": "nodemon -r esm start.js mainnet",
+    "dev": "npx webpack-dev-server --open --config ./public/webpack.config.ts",
+    "build-client": "npx webpack --config ./public/webpack.config.ts",
+    "approveWalletsMain": "node -r esm ./util/approval.js mainnet",
+    "approveWalletsTest": "node -r esm ./util/approval.js testnet"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "abi-decoder": "^2.3.0",
+    "axios": "^0.20.0",
+    "copy-webpack-plugin": "6.2.1",
+    "css-loader": "^5.2.0",
+    "esm": "^3.2.25",
+    "lodash": "^4.17.20",
+    "pm2-server-monitor": "^1.0.0",
+    "socket.io": "^2.3.0",
+    "sqlite3": "^5.0.0",
+    "style-loader": "^2.0.0",
+    "telegraf": "^3.38.0",
+    "web3": "1.3.3",
+    "webpack-dev-server": "^3.11.2"
+  },
+  "devDependencies": {
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
+  }
+}
