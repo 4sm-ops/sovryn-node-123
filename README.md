@@ -138,51 +138,38 @@ https://docs.akash.network/start/wallet
 
 ## 7. Akash deployment instructions
 
+Consider using following bash script. Properly update \[VARIABLE VALUES\]. Run commands one by one.
 ```
 #!/bin/bash 
 
 AKASH_NET="https://raw.githubusercontent.com/ovrclk/net/master/mainnet"
-
 AKASH_VERSION="$(curl -s "$AKASH_NET/version.txt")"
-
 export AKASH_CHAIN_ID="$(curl -s "$AKASH_NET/chain-id.txt")"
-
 curl -s "$AKASH_NET/api-nodes.txt" 
-
 AKASH_NODE="http://rpc.mainnet.akash.dual.systems:80"
 
 AKASH_KEY_NAME="[AKASH ACCOUNT NAME]"
 AKASH_KEYRING_BACKEND="os"
-
 ACCOUNT_ADDRESS="[AKASH ACCOUNT ADDRESS]"
 
 #STEP 0 - Create Certificate
-
 #/opt/homebrew/bin/akash tx cert create client --chain-id $AKASH_CHAIN_ID --keyring-backend $AKASH_KEYRING_BACKEND --from $AKASH_KEY_NAME --node "http://rpc.mainnet.akash.dual.systems:80" --fees 5000uakt
 
 #STEP 1
-
-#echo "STEP 1"
 #/opt/homebrew/bin/akash tx deployment create akash-sovryn-deploy.yml --from $AKASH_KEY_NAME --keyring-backend $AKASH_KEYRING_BACKEND --node "http://rpc.mainnet.akash.dual.systems:80" --chain-id $AKASH_CHAIN_ID -y --fees 5000uakt
 
 # STEP 2
-
 DSEQ=[DSEQ from previous STEP]
-#echo "STEP 2 - check bids" 
 #/opt/homebrew/bin/akash query market bid list --owner=$ACCOUNT_ADDRESS --node $AKASH_NODE --dseq $DSEQ
 
 # STEP 3
-#echo "STEP 3 - accept a bid by creating lease"
-
 DSEQ=[DSEQ from previous STEP]
 GSEQ=[QSEQ from previous STEP]
 OSEQ=[OSEQ from previous STEP]
 PROVIDER="[PROVIDER from previous STEP]"
-
 #/opt/homebrew/bin/akash tx market lease create --chain-id $AKASH_CHAIN_ID --node $AKASH_NODE --owner $ACCOUNT_ADDRESS --dseq $DSEQ --gseq $GSEQ --oseq $OSEQ --provider $PROVIDER --from $AKASH_KEY_NAME --fees 5000uakt --keyring-backend $AKASH_KEYRING_BACKEND
 
 # STEP 4
-#echo "STEP 4 - check lease status"
 #/opt/homebrew/bin/akash query market lease list --owner $ACCOUNT_ADDRESS --node $AKASH_NODE --dseq $DSEQ
 
 # STEP 5
