@@ -3,7 +3,7 @@ version: "2.0"
 
 services:
   web:
-    image: nrm55/sovryn-node:latest
+    image: [DOCKER HUB ACCOUNT]/[REPOSITORY NAME]:latest
     env:
       - WHICHNET=test
       - KEYPW=
