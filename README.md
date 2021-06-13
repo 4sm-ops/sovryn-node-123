@@ -36,7 +36,55 @@ sovrynInternalTelegramId: -492690059,
 
 ## 3. Create wallet in RSK blockchain and export keys
 
+To trade on Sovryn, you will need to set up a Web3 wallet that is compatible with the RSK chain (Rootstock).
+
+https://wiki.sovryn.app/en/getting-started/wallet-setup
+
+### Testnet Wallet setup
+
+3.1 Go to the **Metamask** website and download the latest version of the Metamask Wallet extension.
+
+3.2 Install and have the Metamask extension active in your browser.
+
+3.3 Open Metamask and register on it. (Do not forget to save your recovery phrase!)
+
+3.4 Click the circle in the upper right of the wallet **→ Settings → Networks →** click the **Add Network** button and enter the following **RSK Network** settings.
+
+* **Network Name:** RSK Testnet
+* **New RPC URL:** https://public-node.testnet.rsk.co
+* **Chain ID:** 31
+* **Currency Symbol:** tRBTC
+* **Block Explorer URL:** https://explorer.testnet.rsk.co
+
+3.5 Hit Save and make sure you are switched to the RSK Mainnet. 
+
+3.6 Request some tRBTC from https://faucet.rsk.co
+
+3.7 Save your public key from Metamask and export your private key: **→ Account → Account Details → Export private key**. That will be your credentials of the liquidator/rollover/arbitrage wallets credentials
+
 ## 4. Convert keys to Keystore v3 format
+
+Update **accounts.js** file with the credentials of the liquidator/rollover/arbitrage wallets.
+You have 2 options
+* \[Insecure\] you can specify pKey instead of ks to just use the private key
+* \[Secure\] ks = encrypted keystore file in v3 standard. (Do not forget to save your keystore password!)
+
+```
+export default {
+    "liquidator": [{
+        adr: "",
+        ks: ""
+    }],
+    "rollover": [{
+        adr: "",
+        ks: ""
+    }],
+    "arbitrage": [{
+        adr: "",
+        ks: ""
+    }],
+}
+```
 
 ## 5. Create Docker image and publish to repository
 
