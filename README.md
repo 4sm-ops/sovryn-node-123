@@ -38,8 +38,6 @@ sovrynInternalTelegramId: -492690059,
 
 To trade on Sovryn, you will need to set up a Web3 wallet that is compatible with the RSK chain (Rootstock).
 
-https://wiki.sovryn.app/en/getting-started/wallet-setup
-
 ### Testnet Wallet setup
 
 3.1 Go to the **Metamask** website and download the latest version of the Metamask Wallet extension.
@@ -61,6 +59,9 @@ https://wiki.sovryn.app/en/getting-started/wallet-setup
 3.6 Request some tRBTC from https://faucet.rsk.co
 
 3.7 Save your public key from Metamask and export your private key: **→ Account → Account Details → Export private key**. That will be your credentials of the liquidator/rollover/arbitrage wallets credentials
+
+### Useful links
+https://wiki.sovryn.app/en/getting-started/wallet-setup
 
 ## 4. Convert keys to Keystore v3 format
 
@@ -88,9 +89,114 @@ export default {
 
 ## 5. Create Docker image and publish to repository
 
-## 6. Create Akash account
+5.1 Review and update **Dockerfile** \[Update ENV section\].
+
+5.2 Create new public DockerHub repo.
+
+5.3 Build your image:
+
+```
+docker build -t [DockerHub account name]/[DockerHub repo name] . --no-cache
+```
+
+5.4 \[Optional\] Run your container in local Docker
+
+```
+docker run -p 3000:3000 [DockerHub account name]/[DockerHub repo name]:latest
+```
+
+5.5 Login to DockerHub with AccessKey and push your image
+
+```
+docker login --username [DockerHub account name]/[DockerHub repo name]
+docker push [DockerHub account name]/[DockerHub repo name]:latest
+```
+
+## 6. Install Akash and create account
+
+6.1 Use following guide to install Akash
+
+https://docs.akash.network/start/install
+
+6.2 Create new Akash account
+
+Consider using following bash script (update **akash** binary path or update **PATH** env variable).
+
+```
+#!/bin/bash
+
+AKASH_KEY_NAME="[YOUR KEY NAME HERE"
+AKASH_KEYRING_BACKEND="os"
+
+/opt/homebrew/bin/akash --keyring-backend "$AKASH_KEYRING_BACKEND" keys add "$AKASH_KEY_NAME"
+```
+
+\[IMPORTANT!!!\] Save your account address and mnemonic phrase.
+
+Useful links:
+https://docs.akash.network/start/wallet
 
 ## 7. Akash deployment instructions
+
+```
+#!/bin/bash 
+
+AKASH_NET="https://raw.githubusercontent.com/ovrclk/net/master/mainnet"
+
+AKASH_VERSION="$(curl -s "$AKASH_NET/version.txt")"
+
+export AKASH_CHAIN_ID="$(curl -s "$AKASH_NET/chain-id.txt")"
+
+curl -s "$AKASH_NET/api-nodes.txt" 
+
+AKASH_NODE="http://rpc.mainnet.akash.dual.systems:80"
+
+AKASH_KEY_NAME="[AKASH ACCOUNT NAME]"
+AKASH_KEYRING_BACKEND="os"
+
+ACCOUNT_ADDRESS="[AKASH ACCOUNT ADDRESS]"
+
+#STEP 0 - Create Certificate
+
+#/opt/homebrew/bin/akash tx cert create client --chain-id $AKASH_CHAIN_ID --keyring-backend $AKASH_KEYRING_BACKEND --from $AKASH_KEY_NAME --node "http://rpc.mainnet.akash.dual.systems:80" --fees 5000uakt
+
+#STEP 1
+
+#echo "STEP 1"
+#/opt/homebrew/bin/akash tx deployment create akash-sovryn-deploy.yml --from $AKASH_KEY_NAME --keyring-backend $AKASH_KEYRING_BACKEND --node "http://rpc.mainnet.akash.dual.systems:80" --chain-id $AKASH_CHAIN_ID -y --fees 5000uakt
+
+# STEP 2
+
+DSEQ=[DSEQ from previous STEP]
+#echo "STEP 2 - check bids" 
+#/opt/homebrew/bin/akash query market bid list --owner=$ACCOUNT_ADDRESS --node $AKASH_NODE --dseq $DSEQ
+
+# STEP 3
+#echo "STEP 3 - accept a bid by creating lease"
+
+DSEQ=[DSEQ from previous STEP]
+GSEQ=[QSEQ from previous STEP]
+OSEQ=[OSEQ from previous STEP]
+PROVIDER="[PROVIDER from previous STEP]"
+
+#/opt/homebrew/bin/akash tx market lease create --chain-id $AKASH_CHAIN_ID --node $AKASH_NODE --owner $ACCOUNT_ADDRESS --dseq $DSEQ --gseq $GSEQ --oseq $OSEQ --provider $PROVIDER --from $AKASH_KEY_NAME --fees 5000uakt --keyring-backend $AKASH_KEYRING_BACKEND
+
+# STEP 4
+#echo "STEP 4 - check lease status"
+#/opt/homebrew/bin/akash query market lease list --owner $ACCOUNT_ADDRESS --node $AKASH_NODE --dseq $DSEQ
+
+# STEP 5
+#/opt/homebrew/bin/akash provider send-manifest akash-sovryn-deploy.yml --keyring-backend $AKASH_KEYRING_BACKEND --node $AKASH_NODE --from=$AKASH_KEY_NAME --provider=$PROVIDER --dseq $DSEQ --log_level=info --home ~/.akash
+
+#STEP 6
+#/opt/homebrew/bin/akash provider lease-status --node $AKASH_NODE --home ~/.akash --dseq $DSEQ --from $AKASH_KEY_NAME --provider $PROVIDER --keyring-backend $AKASH_KEYRING_BACKEND
+
+#STEP 7 - check logs
+#/opt/homebrew/bin/akash provider lease-logs --dseq=$DSEQ --from=$ACCOUNT_ADDRESS --provider=$PROVIDER
+
+#STEP 9 - close deployment
+#/opt/homebrew/bin/akash tx deployment close --node $AKASH_NODE --chain-id $AKASH_CHAIN_ID --dseq $DSEQ --owner $ACCOUNT_ADDRESS --from $AKASH_KEY_NAME --keyring-backend $AKASH_KEYRING_BACKEND -y --fees 5000uakt
+```
 
 ## Security. Hardening Sovryn Node
 
@@ -100,5 +206,7 @@ export default {
 
 ## Troubleshooting
 
+1. Consider test docker image, secrets and telegram chat in local Docker
 
+2. Use Telegram chat to make sure that Sovryn Node is active
 
