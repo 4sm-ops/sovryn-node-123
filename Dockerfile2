@@ -6,7 +6,7 @@ RUN mkdir /root/.ssh/
 RUN echo "${SSH_DEPLOY_KEY}" > /root/.ssh/id_rsa
 RUN chmod 400 /root/.ssh/id_rsa
 RUN touch /root/.ssh/known_hosts
-RUN ssh-keyscan git.cryptopass.team >> /root/.ssh/known_hosts
+RUN ssh-keyscan git.your.team >> /root/.ssh/known_hosts
 
 RUN mkdir -p /opt/dockerized_app
 
