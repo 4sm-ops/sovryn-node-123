@@ -3,22 +3,32 @@
 ## 1. Prepare new repo
 
 1.1 Create new repo, copy files from https://github.com/DistributedCollective/Sovryn-Node
+```shell script
+git clone https://github.com/DistributedCollective/Sovryn-Node
+```
 
 ## 2. Telegram bot and chat configuration
 
 Sovryn node uses Telegram chat/bot to send notifications about new transactions and errors.
 
-2.1 Use @BotFather default Telegram bot to create new bot (/newbot command).
+2.1 Use https://t.me/BotFather  to create new bot (`/newbot` command).
+Also you can use `/help` for more specified options to your bot and [official telegram helps](https://core.telegram.org/bots#6-botfather)
 
 ![Create Telegram Bot!](/images/telegram01.png "Create Telegram Bot")
 
+
 2.2 Get API token.
+`id:apiToken`
+for i.e. `1876066462:AAF1nDRouq1rOqhjrJIo5eCWuC3-ktQ8iSI`
 
 ![Get API token!](/images/telegram02.png "Get API token")
 
 2.3 Create new chat and add created telegram bot. Send some messages to newly created chat.
 
 2.4 Use following URL to get Chat ID starting with ("-") symbol: https://api.telegram.org/bot[токен_бота]/getUpdates
+
+for i.e. ` curl https://api.telegram.org/bot1876066462:AAF1nDRouq1rOqhjrJIo5eCWuC3-ktQ8iSI/getUpdates`
+and you'll get response `{"ok":true,"result":[]}`
 
 ![Get API token!](/images/telegram03.png "Get API token")
 
