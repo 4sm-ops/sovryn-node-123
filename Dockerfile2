@@ -1,0 +1,23 @@
+FROM node:lts
+
+ARG SSH_DEPLOY_KEY
+
+RUN mkdir /root/.ssh/
+RUN echo "${SSH_DEPLOY_KEY}" > /root/.ssh/id_rsa
+RUN chmod 400 /root/.ssh/id_rsa
+RUN touch /root/.ssh/known_hosts
+RUN ssh-keyscan git.cryptopass.team >> /root/.ssh/known_hosts
+
+RUN mkdir -p /opt/dockerized_app
+
+COPY . /opt/dockerized_app
+
+WORKDIR /opt/dockerized_app
+
+RUN apt-get update && apt-get -y install procps
+
+RUN npm install --loglevel verbose
+RUN npm install -g mocha nodemon
+RUN chmod +x docker-entrypoint.sh
+
+ENTRYPOINT [ "./docker-entrypoint.sh" ]
