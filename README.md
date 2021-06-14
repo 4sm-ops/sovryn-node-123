@@ -1,5 +1,18 @@
 # Sovryn Node deployment guide
 
+## What is a Sovryn Node?
+
+A Sovryn Node is the part of the Sovryn dapp that monitors the continuous marginal trading on the platform. It's main functions are as follows:
+
+**Liquidation of expired positions**
+The Nodes are check if leveraged trading positions on the platform are above liquidation levels (the trade margin is in excess of the maintenance margin). The nodes automatically liquidate positions if they fail this check and the liquidation criteria is met. The node then contacts both the liquidator and the liquidated and reports the outcome.
+
+**Rollover of open positions**
+When the maximum loan duration has been exceeded, the position will need to be rolled over. The function "rollover" on the protocol contract extends the loan duration by the maximum term (currently 28 days for margin trades) and pays the interest to the lender. The callers reward is 0.1% of the position size and also receives 2x the gas cost (using the fast gas price as base for the calculation).
+
+**Taking advantage of arbitrage opportunities on the AMM**
+Earning money through arbitrage in situations where the expected price from the AMM deviates more than 2% from the oracle price for an asset. The node buys the side which is off.
+
 ## 1. Prepare new repo
 
 1.1 Create new repo, copy files from https://github.com/DistributedCollective/Sovryn-Node
