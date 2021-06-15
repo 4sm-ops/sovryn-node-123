@@ -214,6 +214,17 @@ PROVIDER="[PROVIDER from previous STEP]"
 
 ### Private key security
 
+A private key is a sophisticated form of cryptography that allows a user to access their cryptocurrency.
+Original Sovryn Node repository keeps private key \[or private key password\] in a clear text format in accounts.js file (or in \*.yml file EVN section).
+
+Following guidline aims to protect private key using HashiCorp Vault. The wrapped secret can be unwrapped using the single-use wrapping token. Even the user or the system created the initial token won't see the original value.
+
+Key principles are:
+* Avoid storing crypto wallet private key in a repo and in an image
+* Try to avoid using long lived Vault access tokens in a running Akash container
+
+![Securing private key Concept!](/images/Sovryn Vault interaction diagram v01.png "Securing private key Concept")
+
 ### HashiCorp Cloud Platform (HCP) setup // Cloud Vault Cluster
 
 Create a Vault Cluster in HCP . https://portal.cloud.hashicorp.com 
