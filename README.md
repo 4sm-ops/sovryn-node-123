@@ -223,7 +223,7 @@ Key principles are:
 * Avoid storing crypto wallet private key in a repo and in an image
 * Try to avoid using long lived Vault access tokens in a running Akash container
 
-![Securing private key Concept!](/images/Sovryn Vault interaction diagram v01.png "Securing private key Concept")
+![Securing private key Concept!](/images/Sovryn%20Vault%20interaction%20diagram%20v01.png "Securing private key Concept")
 
 ### HashiCorp Cloud Platform (HCP) setup // Cloud Vault Cluster
 
