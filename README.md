@@ -235,6 +235,8 @@ Benefits of using the response wrapping:
 
 ![cubbyhole!](/images/vault-cubbyhole01.png "Vault cubbyhole")
 
+### Add Cubbyhole engine and Create new secret
+
 ## Security. Securing Akash deployment
 
 ## Troubleshooting
