@@ -212,6 +212,29 @@ PROVIDER="[PROVIDER from previous STEP]"
 
 ## Security. Securing private keys
 
+### Private key security
+
+### HashiCorp Cloud Platform (HCP) setup // Cloud Vault Cluster
+
+Create a Vault Cluster in HCP . https://portal.cloud.hashicorp.com 
+Instructions: https://learn.hashicorp.com/tutorials/cloud/get-started-vault?in=vault/cloud
+
+### Secure private key delivery // Cubbyhole Response Wrapping
+
+All secrets are namespaced under **your token**. If that token expires or is revoked, all the secrets in its cubbyhole are revoked as well.
+
+It is not possible to reach into another token's cubbyhole even as the root user. This is an important difference between the cubbyhole and the key/value secrets engine. The secrets in the key/value secrets engine are accessible to any token for as long as its policy allows it.
+
+Use Vault's cubbyhole response wrapping where the initial token is stored in the cubbyhole secrets engine. The wrapped secret can be unwrapped using the single-use wrapping token. Even the user or the system created the initial token won't see the original value. The wrapping token is short-lived and can be revoked just like any other tokens so that the risk of unauthorized access can be minimized.
+
+Benefits of using the response wrapping:
+
+* It provides cover by ensuring that the value being transmitted across the wire is not the actual secret. It's a reference to the secret.
+* It provides malfeasance detection by ensuring that only a single party can ever unwrap the token and see what's inside
+* It limits the lifetime of the secret exposure
+
+![cubbyhole!](/images/vault-cubbyhole01.png "Vault cubbyhole")
+
 ## Security. Securing Akash deployment
 
 ## Troubleshooting
