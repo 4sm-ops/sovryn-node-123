@@ -237,6 +237,31 @@ Benefits of using the response wrapping:
 
 ### Add Cubbyhole engine and Create new secret
 
+1. Create new namespaces and add cubbyhole engine. Cubbyhole engine is enabled in HCP by default.
+
+![Add cubbyhole engine!](/images/secret01.png "Add cubbyhole engine")
+
+2. Create new secret within Cubbyhole engine.
+
+![Add cubbyhole secret!](/images/secret01.png "Add cubbyhole secret")
+
+### Create Vault access token
+
+1. Install Vault CLI client.
+
+Use official guideline. https://www.vaultproject.io/docs/install
+
+2. Define environment variables, authenticate and create new access token.
+
+```
+export VAULT_ADDR='https://vault-cluster.vault.##########.aws.hashicorp.cloud:8200'
+export VAULT_NAMESPACE=admin/sovryn/ 
+./vault login s.OQRzCjvsAXwue9AetvsqQcWW.0I5Mq
+./vault token create -period=30m -policy=default                    
+```
+
+3. Update deploy.yml with create access token.
+
 ## Security. Securing Akash deployment
 
 ## Troubleshooting
