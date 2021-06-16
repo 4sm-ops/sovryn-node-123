@@ -29,7 +29,6 @@ Also you can use `/help` for more specified options to your bot and [official te
 
 ![Create Telegram Bot!](/images/telegram01.png "Create Telegram Bot")
 
-
 2.2 Get API token.
 `id:apiToken`
 for i.e. `1876066462:AAF1nDRouq1rOqhjrJIo5eCWuC3-ktQ8iSI`
@@ -225,16 +224,17 @@ Key principles are:
 
 ### HashiCorp Cloud Platform (HCP) setup // Cloud Vault Cluster
 
-Create a Vault Cluster in HCP . https://portal.cloud.hashicorp.com 
-Instructions: https://learn.hashicorp.com/tutorials/cloud/get-started-vault?in=vault/cloud
+1. Create a Vault Cluster in HCP (https://portal.cloud.hashicorp.com)
+
+Official instructions are available here: https://learn.hashicorp.com/tutorials/cloud/get-started-vault?in=vault/cloud
 
 ### Secure private key delivery // Cubbyhole Response Wrapping
+
+We use Vault's cubbyhole response wrapping approach where the initial token is stored in the cubbyhole secrets engine. The wrapped secret can be unwrapped using the single-use wrapping token. Even the user or the system created the initial token won't see the original value. The wrapping token is short-lived and can be revoked just like any other tokens so that the risk of unauthorized access can be minimized.
 
 All secrets are namespaced under **your token**. If that token expires or is revoked, all the secrets in its cubbyhole are revoked as well.
 
 It is not possible to reach into another token's cubbyhole even as the root user. This is an important difference between the cubbyhole and the key/value secrets engine. The secrets in the key/value secrets engine are accessible to any token for as long as its policy allows it.
-
-Use Vault's cubbyhole response wrapping where the initial token is stored in the cubbyhole secrets engine. The wrapped secret can be unwrapped using the single-use wrapping token. Even the user or the system created the initial token won't see the original value. The wrapping token is short-lived and can be revoked just like any other tokens so that the risk of unauthorized access can be minimized.
 
 Benefits of using the response wrapping:
 
@@ -243,16 +243,6 @@ Benefits of using the response wrapping:
 * It limits the lifetime of the secret exposure
 
 ![cubbyhole!](/images/vault-cubbyhole01.png "Vault cubbyhole")
-
-### Add Cubbyhole engine and Create new secret
-
-1. Create new namespaces and add cubbyhole engine. Cubbyhole engine is enabled in HCP by default.
-
-![Add cubbyhole engine!](/images/secret01.png "Add cubbyhole engine")
-
-2. Create new secret within Cubbyhole engine.
-
-![Add cubbyhole secret!](/images/secret01.png "Add cubbyhole secret")
 
 ### Create Vault access token
 
@@ -325,7 +315,6 @@ curl --header "X-Vault-Token: $VAULT_TOKEN" \
 1. Consider test docker image, secrets and telegram chat in local Docker
 
 2. Use Telegram chat to make sure that Sovryn Node is active
-
 
 ## To Be Done
 
