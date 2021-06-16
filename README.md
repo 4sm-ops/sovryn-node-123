@@ -13,12 +13,24 @@ When the maximum loan duration has been exceeded, the position will need to be r
 **Taking advantage of arbitrage opportunities on the AMM**
 Earning money through arbitrage in situations where the expected price from the AMM deviates more than 2% from the oracle price for an asset. The node buys the side which is off.
 
+## What is Akash?
+
+The Akash Platform is a deployment platform for hosting and managing containers where users can run any Cloud-Native application. The Akash Platform is built with a set of cloud management services including Kubernetes to orchestrate and manage containers.
+
+Useful links:
+https://docs.akash.network
+
 ## 1. Prepare new repo
 
-1.1 Create new repo, copy files from https://github.com/DistributedCollective/Sovryn-Node
+1.1 Create new repo, copy files from official repository https://github.com/DistributedCollective/Sovryn-Node
+
 ```shell script
 git clone https://github.com/DistributedCollective/Sovryn-Node
 ```
+
+Useful links:
+
+https://github.com/ovrclk/awesome-akash/tree/master/sovryn-node
 
 ## 2. Telegram bot and chat configuration
 
@@ -108,6 +120,8 @@ export default {
     }],
 }
 ```
+
+
 
 ## 5. Create Docker image and publish to repository
 
