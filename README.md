@@ -38,9 +38,9 @@ for i.e. `1876066462:AAF1nDRouq1rOqhjrJIo5eCWuC3-ktQ8iSI`
 
 2.3 Create new chat and add created telegram bot. Send some messages to newly created chat.
 
-2.4 Use following URL to get Chat ID starting with ("-") symbol: https://api.telegram.org/bot[токен_бота]/getUpdates
+2.4 Use following URL to get Chat ID starting with ("-") symbol: https://api.telegram.org/bot[BOT-API-TOKEN]/getUpdates
 
-for i.e. ` curl https://api.telegram.org/bot1876066462:AAF1nDRouq1rOqhjrJIo5eCWuC3-ktQ8iSI/getUpdates`
+for i.e. ` curl https://api.telegram.org/botBOT-API-TOKEN]/getUpdates`
 and you'll get response `{"ok":true,"result":[]}`
 
 ![Get API token!](/images/telegram03.png "Get API token")
