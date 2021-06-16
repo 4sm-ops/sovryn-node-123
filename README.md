@@ -178,37 +178,35 @@ ACCOUNT_ADDRESS="[AKASH ACCOUNT ADDRESS]"
 #STEP 0 - Create Certificate
 #/opt/homebrew/bin/akash tx cert create client --chain-id $AKASH_CHAIN_ID --keyring-backend $AKASH_KEYRING_BACKEND --from $AKASH_KEY_NAME --node "http://rpc.mainnet.akash.dual.systems:80" --fees 5000uakt
 
-#STEP 1
+#STEP 1 - Create deployment, get DSEQ into $DSEQ
 #/opt/homebrew/bin/akash tx deployment create akash-sovryn-deploy.yml --from $AKASH_KEY_NAME --keyring-backend $AKASH_KEYRING_BACKEND --node "http://rpc.mainnet.akash.dual.systems:80" --chain-id $AKASH_CHAIN_ID -y --fees 5000uakt
 
-# STEP 2
+#STEP 2 - Check BIDs
 DSEQ=[DSEQ from previous STEP]
 #/opt/homebrew/bin/akash query market bid list --owner=$ACCOUNT_ADDRESS --node $AKASH_NODE --dseq $DSEQ
 
-# STEP 3
+#STEP 3 - Accept a bid by creating lease, get provider into $PROVIDER
 DSEQ=[DSEQ from previous STEP]
 GSEQ=[QSEQ from previous STEP]
 OSEQ=[OSEQ from previous STEP]
 PROVIDER="[PROVIDER from previous STEP]"
 #/opt/homebrew/bin/akash tx market lease create --chain-id $AKASH_CHAIN_ID --node $AKASH_NODE --owner $ACCOUNT_ADDRESS --dseq $DSEQ --gseq $GSEQ --oseq $OSEQ --provider $PROVIDER --from $AKASH_KEY_NAME --fees 5000uakt --keyring-backend $AKASH_KEYRING_BACKEND
 
-# STEP 4
+#STEP 4 - Check lease status
 #/opt/homebrew/bin/akash query market lease list --owner $ACCOUNT_ADDRESS --node $AKASH_NODE --dseq $DSEQ
 
-# STEP 5
+#STEP 5 - Upload our manifest, wait for spinup
 #/opt/homebrew/bin/akash provider send-manifest akash-sovryn-deploy.yml --keyring-backend $AKASH_KEYRING_BACKEND --node $AKASH_NODE --from=$AKASH_KEY_NAME --provider=$PROVIDER --dseq $DSEQ --log_level=info --home ~/.akash
 
-#STEP 6
+#STEP 6 - Check the lease status
 #/opt/homebrew/bin/akash provider lease-status --node $AKASH_NODE --home ~/.akash --dseq $DSEQ --from $AKASH_KEY_NAME --provider $PROVIDER --keyring-backend $AKASH_KEYRING_BACKEND
 
-#STEP 7 - check logs
+#STEP 7 - Check logs
 #/opt/homebrew/bin/akash provider lease-logs --dseq=$DSEQ --from=$ACCOUNT_ADDRESS --provider=$PROVIDER
 
-#STEP 9 - close deployment
+#STEP 9 - Close deployment
 #/opt/homebrew/bin/akash tx deployment close --node $AKASH_NODE --chain-id $AKASH_CHAIN_ID --dseq $DSEQ --owner $ACCOUNT_ADDRESS --from $AKASH_KEY_NAME --keyring-backend $AKASH_KEYRING_BACKEND -y --fees 5000uakt
 ```
-
-## Security. Hardening Sovryn Node
 
 ## Security. Securing private keys
 
@@ -265,19 +263,71 @@ Use official guideline. https://www.vaultproject.io/docs/install
 2. Define environment variables, authenticate and create new access token.
 
 ```
-export VAULT_ADDR='https://vault-cluster.vault.##########.aws.hashicorp.cloud:8200'
-export VAULT_NAMESPACE=admin/sovryn/ 
-./vault login s.OQRzCjvsAXwue9AetvsqQcWW.0I5Mq
-./vault token create -period=30m -policy=default                    
+#!/bin/bash
+# Export env variables for Vault
+export VAULT_ADDR="https://vault-cluster.vault.[VAULT PUBLIC ADDRESS].aws.hashicorp.cloud:8200"
+export VAULT_NAMESPACE="admin"
+
+# Login via admin token
+vault login [VAULT ADMIN TOKEN]
+
+# Create a policy for the node
+cat << EOF > node-policy.hcl
+path "secret/data/dev" {
+  capabilities = [ "read" ]
+}
+EOF
+
+vault policy write node-policy node-policy.hcl
+# Enable key/value v2 secrets engine at secret/ if it's not enabled already
+ vault secrets enable -path=secret kv-v2
+
+# Write some secret at secret/dev
+vault kv put secret/dev private="my-private-data"
+
+# Generating one-time token that'll be used on a node
+ONETIME_TOKEN=`vault token create -use-limit=2 | grep -w token | awk '{print $2}'`
+
+# Generating wrapping token that'll be used for retrieving the secret
+WRAPPING_TOKEN=`vault token create -policy=node-policy -wrap-ttl=300 | grep -w "wrapping_token:" | awk '{print $2}'`
+
+# Store wrapping token in a cubbyhole storage using newly generated token that'll expire in the next one use
+VAULT_TOKEN="$ONETIME_TOKEN" vault write cubbyhole/private/access-token token="$WRAPPING_TOKEN"
+
+# Copy this token to a node to get wrapping token
+echo "Use this token on a node: $ONETIME_TOKEN"
 ```
 
-3. Update deploy.yml with create access token.
+3. Update Docker image
 
-## Security. Securing Akash deployment
+```
+################## NODE SIDE ##################
+# Get wrapping token via one-time token
+export VAULT_ADDR="https://vault-cluster.vault.[VAULT PUBLIC ADDRESS].aws.hashicorp.cloud:8200"
+WRAPPING_TOKEN=`curl --header "X-Vault-Token: $ONETIME_TOKEN" \
+    --header "X-Vault-Namespace: admin"  \
+     $VAULT_ADDR/v1/cubbyhole/private/access-token | jq -r .data.token #| sed 's/"//g'`
 
+# Unwrap the token
+VAULT_TOKEN=`curl --header "X-Vault-Token: $WRAPPING_TOKEN" \
+        --header "X-Vault-Namespace: admin" \
+        --request POST \
+        $VAULT_ADDR/v1/sys/wrapping/unwrap | jq -r .auth.client_token`
+
+# Get the secret
+curl --header "X-Vault-Token: $VAULT_TOKEN" \
+        --header "X-Vault-Namespace: admin" \
+        $VAULT_ADDR/v1/secret/data/dev | jq -r .data.data.private
+
+```
 ## Troubleshooting
 
 1. Consider test docker image, secrets and telegram chat in local Docker
 
 2. Use Telegram chat to make sure that Sovryn Node is active
 
+
+## To Be Done
+
+### Security. Securing Akash deployment
+### Security. Hardening Sovryn Node
