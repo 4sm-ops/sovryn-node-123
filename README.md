@@ -104,6 +104,50 @@ You have 2 options
 * \[Insecure\] you can specify pKey instead of ks to just use the private key
 * \[Secure\] ks = encrypted keystore file in v3 standard. (Do not forget to save your keystore password!)
 
+Install python3, pip3 and web3 libraries.
+
+```
+pip3 install web3
+```
+Use simple python3 script to generate keystore v3 JSON.
+
+```
+import web3
+import json
+from eth_account import Account
+
+key = Account.encrypt("dde2ec361acec024e78587f605fb8f2f098aacb5c492393e7cca66a42f288664", "SecurePassword123$")
+
+print(json.dumps(key))
+```
+
+Sample output:
+
+```
+{
+  "address": "9af00e58040f2f0fbfb3acd542f7c5f1a4fabd70",
+  "crypto": {
+    "cipher": "aes-128-ctr",
+    "cipherparams": {
+      "iv": "28a54a14a930ba79d73f86b2ead959b8"
+    },
+    "ciphertext": "6ca58b069d23f178c067392fc34b50af02a403cbd7749e352ef5ee621eb5605b",
+    "kdf": "scrypt",
+    "kdfparams": {
+      "dklen": 32,
+      "n": 262144,
+      "r": 1,
+      "p": 8,
+      "salt": "7d5519d5bddb35e4818f1ca7e368a459"
+    },
+    "mac": "86bf62840ae93e62d5acfdad8b24428eab2431d676afe7e95327101b731a5304"
+  },
+  "id": "29def9c7-46d6-421a-91e5-c86bfdeedac5",
+  "version": 3
+}
+```
+
+Update accounts.js file and protect password using HashiCorp vault (see instructions below):
 ```
 export default {
     "liquidator": [{
@@ -120,8 +164,6 @@ export default {
     }],
 }
 ```
-
-
 
 ## 5. Create Docker image and publish to repository
 
