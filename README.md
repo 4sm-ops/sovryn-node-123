@@ -332,7 +332,7 @@ vault policy write node-policy node-policy.hcl
 vault kv put secret/dev private="my-private-data"
 
 # Generating one-time token that'll be used on a node
-ONETIME_TOKEN=`vault token create -use-limit=2 | grep -w token | awk '{print $2}'`
+ONETIME_TOKEN=`vault token create -use-limit=2 -policy=default | grep -w token | awk '{print $2}'`
 
 # Generating wrapping token that'll be used for retrieving the secret
 WRAPPING_TOKEN=`vault token create -policy=node-policy -wrap-ttl=300 | grep -w "wrapping_token:" | awk '{print $2}'`
