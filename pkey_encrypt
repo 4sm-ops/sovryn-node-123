@@ -1,0 +1,44 @@
+import os
+import web3
+import json
+import requests
+
+from getpass import getpass
+from eth_account import Account
+
+
+# Function to compare entered passphrases
+def check_pwd(pwd1, pwd2):
+    if pwd1 == pwd2:
+        return True
+    else:
+        return False
+
+# Hidden input of private key and passphrase
+private_key = getpass("Private key (Input hidden): ")
+passphrase = getpass("Passphrase (Input hidden): ")
+confirm_pass = getpass("Confirm pass (Input hidden): ")
+
+
+if check_pwd(passphrase, confirm_pass):
+    # Check if VAULT_ADDR, VAULT_NAMESPACE, VAULT_TOKEN are ENV variables. If not, prompting to input absent values
+    VAULT_ADDR = os.getenv("VAULT_ADDR") if os.getenv("VAULT_ADDR") else input("Vault URL: ")
+    VAULT_NAMESPACE = os.getenv("VAULT_NAMESPACE") if os.getenv("VAULT_NAMESPACE") else input("Vault namespace: ")
+    VAULT_TOKEN = os.getenv("VAULT_TOKEN") if os.getenv("VAULT_TOKEN") else getpass("Vault token (Input hidden): ")
+    
+    # Encrypting Private Key with a Passphrase
+    key = Account.encrypt(private_key, passphrase)
+    
+    # Converting credentials to JSON format and sending them to HashiCorp Vault
+    json = {"passphrase": passphrase, "private": json.dumps(key)}
+    r = requests.put(VAULT_ADDR, json={"data": json}, headers={"X-Vault-Token": VAULT_TOKEN, "X-Vault-Namespace": VAULT_NAMESPACE})
+    
+    # Check if the request succeed
+    if r.ok:
+        print("Private key and passphrase has been written to a Vault")
+        exit(0)
+    else:
+        print(f"{r}: {r.text}")
+else:
+    print("Passphrases don't match. Please retry")
+    exit(1)
