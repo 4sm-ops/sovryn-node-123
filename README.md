@@ -97,73 +97,142 @@ To trade on Sovryn, you will need to set up a Web3 wallet that is compatible wit
 ### Useful links
 https://wiki.sovryn.app/en/getting-started/wallet-setup
 
-## 4. Convert keys to Keystore v3 format
+## 4. Convert keys to Keystore v3 format and put them into HashiCorp Vault 
 
-Update **accounts.js** file with the credentials of the liquidator/rollover/arbitrage wallets.
+### Private key security
+
+A private key is a sophisticated form of cryptography that allows a user to access their cryptocurrency.
+Original Sovryn Node repository keeps private key \[or private key password\] in a clear text format in accounts.js file (or in \*.yml file EVN section).
+
+Following guidline aims to protect private key using HashiCorp Vault. The wrapped secret can be unwrapped using the single-use wrapping token. Even the user or the system created the initial token won't see the original value.
+
+Key principles are:
+* Avoid storing crypto wallet private key in a repo and in an image
+* Try to avoid using long lived Vault access tokens in a running Akash container
+
+![Securing private key Concept!](/images/Sovryn%20Vault%20interaction%20diagram%20v01.png "Securing private key Concept")
+
+### HashiCorp Cloud Platform (HCP) setup // Cloud Vault Cluster
+
+1. Create a Vault Cluster in HCP (https://portal.cloud.hashicorp.com)
+
+Official instructions are available here: https://learn.hashicorp.com/tutorials/cloud/get-started-vault?in=vault/cloud
+
+### Secure private key delivery // Cubbyhole Response Wrapping
+
+We use Vault's cubbyhole response wrapping approach where the initial token is stored in the cubbyhole secrets engine. The wrapped secret can be unwrapped using the single-use wrapping token. Even the user or the system created the initial token won't see the original value. The wrapping token is short-lived and can be revoked just like any other tokens so that the risk of unauthorized access can be minimized.
+
+All secrets are namespaced under **your token**. If that token expires or is revoked, all the secrets in its cubbyhole are revoked as well.
+
+It is not possible to reach into another token's cubbyhole even as the root user. This is an important difference between the cubbyhole and the key/value secrets engine. The secrets in the key/value secrets engine are accessible to any token for as long as its policy allows it.
+
+Benefits of using the response wrapping:
+
+* It provides cover by ensuring that the value being transmitted across the wire is not the actual secret. It's a reference to the secret.
+* It provides malfeasance detection by ensuring that only a single party can ever unwrap the token and see what's inside
+* It limits the lifetime of the secret exposure
+
+![cubbyhole!](/images/vault-cubbyhole01.png "Vault cubbyhole")
+
+### Create Vault access token
+
+1. Install Vault CLI client.
+
+Use official guideline. https://www.vaultproject.io/docs/install
+
+2. Define environment variables, authenticate and create new access token.
+
+```
+# Export env variables for Vault
+export VAULT_ADDR="https://vault-cluster.vault.[VAULT PUBLIC ADDRESS].aws.hashicorp.cloud:8200"
+export VAULT_NAMESPACE="admin"
+read -s token
+export VAULT_TOKEN=$token
+
+# To make sure that we'are authenticated run following command
+vault token lookup 
+
+# Create a policy for the node
+cat << EOF > node-policy.hcl
+path "secret/data/dev" {
+  capabilities = [ "read" ]
+}
+EOF
+
+vault policy write node-policy node-policy.hcl
+
+# Enable key/value v2 secrets engine at secret/ if it's not enabled already
+ vault secrets enable -path=secret kv-v2
+```
+To make node working we need to update **accounts.js** file with the credentials of the liquidator/rollover/arbitrage wallets.
 You have 2 options
 * \[Insecure\] you can specify pKey instead of ks to just use the private key
 * \[Secure\] ks = encrypted keystore file in v3 standard. (Do not forget to save your keystore password!)
+Here post we'll demonstrate secure method.
 
-Install python3, pip3 and web3 libraries.
+Install python3, pip3 and web3 library.
 
 ```
 pip3 install web3
 ```
-Use simple python3 script to generate keystore v3 JSON.
+We have prepared simple [python3 script](https://github.com/rustamabdullin/sovryn-node-123/blob/main/pkey_encrypt) to generate keystore v3 JSON and to send it to HashiCorp Vault.
 
+Script will prompt to enter Private Key and Passphrase to generate Keystore v3 JSON
+Also script will ask such data as VAULT_ADDR, VAULT_NAMESPACE, VAULT_TOKEN to automatically store credentials in HashiCorp Vault. 
+Script also checks if these variables present as env variables. So you can easily specify them in CLI:
+
+In example showed below user hasn't specified Vault variables in env and he will be prompted to enter them manually.
 ```
-import web3
-import json
-from eth_account import Account
-
-key = Account.encrypt("dde2ec361acec024e78587f605fb8f2f098aacb5c492393e7cca66a42f288664", "SecurePassword123$")
-
-print(json.dumps(key))
-```
-
-Sample output:
-
-```
-{
-  "address": "9af00e58040f2f0fbfb3acd542f7c5f1a4fabd70",
-  "crypto": {
-    "cipher": "aes-128-ctr",
-    "cipherparams": {
-      "iv": "28a54a14a930ba79d73f86b2ead959b8"
-    },
-    "ciphertext": "6ca58b069d23f178c067392fc34b50af02a403cbd7749e352ef5ee621eb5605b",
-    "kdf": "scrypt",
-    "kdfparams": {
-      "dklen": 32,
-      "n": 262144,
-      "r": 1,
-      "p": 8,
-      "salt": "7d5519d5bddb35e4818f1ca7e368a459"
-    },
-    "mac": "86bf62840ae93e62d5acfdad8b24428eab2431d676afe7e95327101b731a5304"
-  },
-  "id": "29def9c7-46d6-421a-91e5-c86bfdeedac5",
-  "version": 3
-}
+[user@localhost sovryn-node-123-main]$ python3 pkey_encrypt.py 
+Private key (Input hidden): 
+Passphrase (Input hidden): 
+Confirm pass (Input hidden): 
+Vault address: https://vault-cluster.vault.[VAULT PUBLIC ADDRESS].aws.hashicorp.cloud:8200
+Vault secret path: /v1/secret/data/dev
+Vault namespace: admin
+Vault token (Input hidden): 
+Private key and passphrase has been written to a Vault
 ```
 
-Update accounts.js file and protect password using HashiCorp vault (see instructions below):
 ```
-export default {
-    "liquidator": [{
-        adr: "",
-        ks: ""
-    }],
-    "rollover": [{
-        adr: "",
-        ks: ""
-    }],
-    "arbitrage": [{
-        adr: "",
-        ks: ""
-    }],
-}
+# Generating one-time token that'll be used on a node to get wrapping token.
+ONETIME_TOKEN=`vault token create -use-limit=2 -policy=default | grep -w token | awk '{print $2}'`
+
+# Generating wrapping token that'll be used for retrieving the secret
+WRAPPING_TOKEN=`vault token create -policy=node-policy -wrap-ttl=300 | grep -w "wrapping_token:" | awk '{print $2}'`
+
+# Store wrapping token in a cubbyhole storage using newly generated token that'll expire in the next one use
+VAULT_TOKEN="$ONETIME_TOKEN" vault write cubbyhole/private/access-token token="$WRAPPING_TOKEN"
+
+# Put this token to deploy.yml that will be used when creating the Akashi deployment
+sed -i "s/ONE_TIME_TOKEN/$ONETIME_TOKEN/" deploy.yml 
 ```
+
+3. Update Docker image
+
+```
+################## NODE SIDE ##################
+# Get wrapping token via one-time token
+export VAULT_ADDR="https://vault-cluster.vault.[VAULT PUBLIC ADDRESS].aws.hashicorp.cloud:8200"
+WRAPPING_TOKEN=`curl --header "X-Vault-Token: $ONETIME_TOKEN" \
+    --header "X-Vault-Namespace: admin"  \
+     $VAULT_ADDR/v1/cubbyhole/private/access-token | jq -r .data.token #| sed 's/"//g'`
+
+# Unwrap the token
+VAULT_TOKEN=`curl --header "X-Vault-Token: $WRAPPING_TOKEN" \
+        --header "X-Vault-Namespace: admin" \
+        --request POST \
+        $VAULT_ADDR/v1/sys/wrapping/unwrap | jq -r .auth.client_token`
+
+# Get the secret
+curl --header "X-Vault-Token: $VAULT_TOKEN" \
+        --header "X-Vault-Namespace: admin" \
+        $VAULT_ADDR/v1/secret/data/dev | jq -r .data.data.private
+
+```
+
+
+
 
 ## 5. Create Docker image and publish to repository
 
@@ -263,109 +332,6 @@ PROVIDER="[PROVIDER from previous STEP]"
 #/opt/homebrew/bin/akash tx deployment close --node $AKASH_NODE --chain-id $AKASH_CHAIN_ID --dseq $DSEQ --owner $ACCOUNT_ADDRESS --from $AKASH_KEY_NAME --keyring-backend $AKASH_KEYRING_BACKEND -y --fees 5000uakt
 ```
 
-## Security. Securing private keys
-
-### Private key security
-
-A private key is a sophisticated form of cryptography that allows a user to access their cryptocurrency.
-Original Sovryn Node repository keeps private key \[or private key password\] in a clear text format in accounts.js file (or in \*.yml file EVN section).
-
-Following guidline aims to protect private key using HashiCorp Vault. The wrapped secret can be unwrapped using the single-use wrapping token. Even the user or the system created the initial token won't see the original value.
-
-Key principles are:
-* Avoid storing crypto wallet private key in a repo and in an image
-* Try to avoid using long lived Vault access tokens in a running Akash container
-
-![Securing private key Concept!](/images/Sovryn%20Vault%20interaction%20diagram%20v01.png "Securing private key Concept")
-
-### HashiCorp Cloud Platform (HCP) setup // Cloud Vault Cluster
-
-1. Create a Vault Cluster in HCP (https://portal.cloud.hashicorp.com)
-
-Official instructions are available here: https://learn.hashicorp.com/tutorials/cloud/get-started-vault?in=vault/cloud
-
-### Secure private key delivery // Cubbyhole Response Wrapping
-
-We use Vault's cubbyhole response wrapping approach where the initial token is stored in the cubbyhole secrets engine. The wrapped secret can be unwrapped using the single-use wrapping token. Even the user or the system created the initial token won't see the original value. The wrapping token is short-lived and can be revoked just like any other tokens so that the risk of unauthorized access can be minimized.
-
-All secrets are namespaced under **your token**. If that token expires or is revoked, all the secrets in its cubbyhole are revoked as well.
-
-It is not possible to reach into another token's cubbyhole even as the root user. This is an important difference between the cubbyhole and the key/value secrets engine. The secrets in the key/value secrets engine are accessible to any token for as long as its policy allows it.
-
-Benefits of using the response wrapping:
-
-* It provides cover by ensuring that the value being transmitted across the wire is not the actual secret. It's a reference to the secret.
-* It provides malfeasance detection by ensuring that only a single party can ever unwrap the token and see what's inside
-* It limits the lifetime of the secret exposure
-
-![cubbyhole!](/images/vault-cubbyhole01.png "Vault cubbyhole")
-
-### Create Vault access token
-
-1. Install Vault CLI client.
-
-Use official guideline. https://www.vaultproject.io/docs/install
-
-2. Define environment variables, authenticate and create new access token.
-
-```
-#!/bin/bash
-# Export env variables for Vault
-export VAULT_ADDR="https://vault-cluster.vault.[VAULT PUBLIC ADDRESS].aws.hashicorp.cloud:8200"
-export VAULT_NAMESPACE="admin"
-
-# Login via admin token
-vault login [VAULT ADMIN TOKEN]
-
-# Create a policy for the node
-cat << EOF > node-policy.hcl
-path "secret/data/dev" {
-  capabilities = [ "read" ]
-}
-EOF
-
-vault policy write node-policy node-policy.hcl
-# Enable key/value v2 secrets engine at secret/ if it's not enabled already
- vault secrets enable -path=secret kv-v2
-
-# Write some secret at secret/dev
-vault kv put secret/dev private="my-private-data"
-
-# Generating one-time token that'll be used on a node
-ONETIME_TOKEN=`vault token create -use-limit=2 -policy=default | grep -w token | awk '{print $2}'`
-
-# Generating wrapping token that'll be used for retrieving the secret
-WRAPPING_TOKEN=`vault token create -policy=node-policy -wrap-ttl=300 | grep -w "wrapping_token:" | awk '{print $2}'`
-
-# Store wrapping token in a cubbyhole storage using newly generated token that'll expire in the next one use
-VAULT_TOKEN="$ONETIME_TOKEN" vault write cubbyhole/private/access-token token="$WRAPPING_TOKEN"
-
-# Copy this token to a node to get wrapping token
-echo "Use this token on a node: $ONETIME_TOKEN"
-```
-
-3. Update Docker image
-
-```
-################## NODE SIDE ##################
-# Get wrapping token via one-time token
-export VAULT_ADDR="https://vault-cluster.vault.[VAULT PUBLIC ADDRESS].aws.hashicorp.cloud:8200"
-WRAPPING_TOKEN=`curl --header "X-Vault-Token: $ONETIME_TOKEN" \
-    --header "X-Vault-Namespace: admin"  \
-     $VAULT_ADDR/v1/cubbyhole/private/access-token | jq -r .data.token #| sed 's/"//g'`
-
-# Unwrap the token
-VAULT_TOKEN=`curl --header "X-Vault-Token: $WRAPPING_TOKEN" \
-        --header "X-Vault-Namespace: admin" \
-        --request POST \
-        $VAULT_ADDR/v1/sys/wrapping/unwrap | jq -r .auth.client_token`
-
-# Get the secret
-curl --header "X-Vault-Token: $VAULT_TOKEN" \
-        --header "X-Vault-Namespace: admin" \
-        $VAULT_ADDR/v1/secret/data/dev | jq -r .data.data.private
-
-```
 ## Troubleshooting
 
 1. Consider test docker image, secrets and telegram chat in local Docker
