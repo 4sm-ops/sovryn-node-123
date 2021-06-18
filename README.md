@@ -177,9 +177,7 @@ pip3 install web3
 ```
 We have prepared simple [python3 script](https://github.com/rustamabdullin/sovryn-node-123/blob/main/pkey_encrypt) to generate keystore v3 JSON and to send it to HashiCorp Vault.
 
-Script will prompt to enter Private Key and Passphrase to generate Keystore v3 JSON
-Also script will ask such data as VAULT_ADDR, VAULT_NAMESPACE, VAULT_TOKEN to automatically store credentials in HashiCorp Vault.\n
-Script also checks if these variables present as env variables.
+Script will prompt to enter Private Key and Passphrase to generate Keystore v3 JSON. Also script will ask such data as VAULT_ADDR, VAULT_NAMESPACE, VAULT_TOKEN to automatically store credentials in HashiCorp Vault. Script also checks if these variables present as env variables.
 
 In example showed below user hasn't specified Vault variables in env and he will be prompted to enter them manually.
 ```
