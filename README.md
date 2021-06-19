@@ -175,9 +175,15 @@ Install python3, pip3 and web3 library.
 ```
 pip3 install web3
 ```
+### Securely move RSK wallet private key to Vault
+
 We have prepared simple [python3 script](https://github.com/rustamabdullin/sovryn-node-123/blob/main/pkey_encrypt) to generate keystore v3 JSON and to send it to HashiCorp Vault.
 
+**The idea is to completely avoid storing private key and it's password in a cleartext format. **
+
 Script will prompt to enter Private Key and Passphrase to generate Keystore v3 JSON. Also script will ask such data as VAULT_ADDR, VAULT_NAMESPACE, VAULT_TOKEN to automatically store credentials in HashiCorp Vault. Script also checks if these variables present as env variables.
+
+Script immediately generates keystore v3 file protected with password and sends it to vault storage.
 
 In example showed below user hasn't specified Vault variables in env and he will be prompted to enter them manually.
 ```
