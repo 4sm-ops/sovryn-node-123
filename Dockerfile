@@ -1,9 +1,9 @@
 FROM node:14-slim
 
 ENV WHICHNET=test
-ENV KEYPW=T3stS0vryn
-ENV VAULT_ADDR="https://vault-cluster.vault.[VAULT PUBLIC ADDRESS].aws.hashicorp.cloud:8200"
-ENV ONETIME_TOKEN=
+#ENV KEYPW=T3stS0vryn
+#ENV VAULT_ADDR="https://vault-cluster.vault.[VAULT PUBLIC ADDRESS].aws.hashicorp.cloud:8200"
+#ENV ONETIME_TOKEN=
 
 RUN apt-get update && apt-get -y install procps
 
@@ -34,7 +34,7 @@ RUN curl --header "X-Vault-Token: $ONETIME_TOKEN" --header "X-Vault-Namespace: a
 
 RUN WRAPPING_TOKEN=`cat /app/secrets/wrapping_token` && rm -f /app/secrets/wrapping_token && curl --header "X-Vault-Token: $WRAPPING_TOKEN" --header "X-Vault-Namespace: admin" --request POST $VAULT_ADDR/v1/sys/wrapping/unwrap | jq -r .auth.client_token > /app/secrets/vault_token
 
-RUN VAULT_TOKEN=`cat /app/secrets/vault_token` && rm -f /app/secrets/vault_token && curl --header "X-Vault-Token: $VAULT_TOKEN" --header "X-Vault-Namespace: admin" https://vault-cluster.vault.868cd5c7-b7f6-4809-88be-8b6a0b5ea33f.aws.hashicorp.cloud:8200/v1/secret/data/dev --output /app/secrets/temp
+RUN VAULT_TOKEN=`cat /app/secrets/vault_token` && rm -f /app/secrets/vault_token && curl --header "X-Vault-Token: $VAULT_TOKEN" --header "X-Vault-Namespace: admin" "$VAULT_ADDR/v1/secret/data/dev" --output /app/secrets/temp
 
 RUN ADDR=`cat /app/secrets/temp | jq -r .data.data.private | jq -r .address` && sed -i "s/ADDR/$ADDR/g" /app/secrets/accounts.js
 RUN PRIVATE=`cat /app/secrets/temp | jq -r .data.data.private` && sed -i "s/PRIVATE/$PRIVATE/g" /app/secrets/accounts.js
