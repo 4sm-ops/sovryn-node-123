@@ -203,7 +203,7 @@ Private key and passphrase has been written to a Vault
 ONETIME_TOKEN=`vault token create -use-limit=2 -policy=default | grep -w token | awk '{print $2}'`
 
 # Generating wrapping token that'll be used for retrieving the secret
-WRAPPING_TOKEN=`vault token create -policy=node-policy -wrap-ttl=300 | grep -w "wrapping_token:" | awk '{print $2}'`
+WRAPPING_TOKEN=`vault token create -policy=node-policy -wrap-ttl=600 | grep -w "wrapping_token:" | awk '{print $2}'`
 
 # Store wrapping token in a cubbyhole storage using newly generated token that'll expire in the next one use
 VAULT_TOKEN="$ONETIME_TOKEN" vault write cubbyhole/private/access-token token="$WRAPPING_TOKEN"
