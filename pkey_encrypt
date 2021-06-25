@@ -22,7 +22,8 @@ confirm_pass = getpass("Confirm pass (Input hidden): ")
 
 if check_pwd(passphrase, confirm_pass):
     # Check if VAULT_ADDR, VAULT_NAMESPACE, VAULT_TOKEN are ENV variables. If not, prompting to input absent values
-    VAULT_ADDR = os.getenv("VAULT_ADDR") if os.getenv("VAULT_ADDR") else input("Vault URL: ")
+    VAULT_ADDR = os.getenv("VAULT_ADDR") if os.getenv("VAULT_ADDR") else input("Vault ADDR: (looks like /v1/secret/...)")
+    VAULT_PATH = os.getenv("VAULT_PATH") if os.getenv("VAULT_PATH") else input("Vault PATH: ")
     VAULT_NAMESPACE = os.getenv("VAULT_NAMESPACE") if os.getenv("VAULT_NAMESPACE") else input("Vault namespace: ")
     VAULT_TOKEN = os.getenv("VAULT_TOKEN") if os.getenv("VAULT_TOKEN") else getpass("Vault token (Input hidden): ")
     
@@ -31,7 +32,7 @@ if check_pwd(passphrase, confirm_pass):
     
     # Converting credentials to JSON format and sending them to HashiCorp Vault
     json = {"passphrase": passphrase, "private": json.dumps(key)}
-    r = requests.put(VAULT_ADDR, json={"data": json}, headers={"X-Vault-Token": VAULT_TOKEN, "X-Vault-Namespace": VAULT_NAMESPACE})
+    r = requests.put(VAULT_ADDR+VAULT_PATH, json={"data": json}, headers={"X-Vault-Token": VAULT_TOKEN, "X-Vault-Namespace": VAULT_NAMESPACE})
     
     # Check if the request succeed
     if r.ok:
