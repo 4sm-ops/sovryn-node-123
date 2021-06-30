@@ -32,7 +32,7 @@ if check_pwd(passphrase, confirm_pass):
     
     # Converting credentials to JSON format and sending them to HashiCorp Vault
     #json = {"passphrase": passphrase, "private": json.dumps(key)}
-    r = requests.put(VAULT_ADDR+VAULT_PATH, json={"data": private_key}, headers={"X-Vault-Token": VAULT_TOKEN, "X-Vault-Namespace": VAULT_NAMESPACE})
+    r = requests.put(VAULT_ADDR+VAULT_PATH, json={"data": {"private": private_key}}, headers={"X-Vault-Token": VAULT_TOKEN, "X-Vault-Namespace": VAULT_NAMESPACE})
     
     # Check if the request succeed
     if r.ok:
