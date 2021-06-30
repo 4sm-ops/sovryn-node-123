@@ -41,5 +41,5 @@ RUN PRIVATE=`cat /app/secrets/temp | jq -r .data.data.private` && sed -i "s/PRIV
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "PWKEY=`cat /app/secrets/temp | jq -r .data.data.passphrase` && rm -f /app/secrets/temp && npm run start:${WHICHNET} ${PWKEY}"]
-#CMD ["sh", "-c", "npm run start:test 123"]
+#CMD ["sh", "-c", "PWKEY=`cat /app/secrets/temp | jq -r .data.data.passphrase` && rm -f /app/secrets/temp && npm run start:${WHICHNET} ${PWKEY}"]
+CMD ["sh", "-c", "npm run start:${WHICHNET}"]
