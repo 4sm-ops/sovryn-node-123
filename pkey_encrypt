@@ -16,8 +16,8 @@ def check_pwd(pwd1, pwd2):
 
 # Hidden input of private key and passphrase
 private_key = getpass("Private key (Input hidden): ")
-passphrase = "one"
-confirm_pass = "one"
+passphrase = "SECURITYPASS123"
+confirm_pass = passphrase
 
 
 if check_pwd(passphrase, confirm_pass):
@@ -28,11 +28,11 @@ if check_pwd(passphrase, confirm_pass):
     VAULT_TOKEN = os.getenv("VAULT_TOKEN") if os.getenv("VAULT_TOKEN") else getpass("Vault token (Input hidden): ")
     
     # Encrypting Private Key with a Passphrase
-    #key = Account.encrypt(private_key, passphrase)
+    key = Account.encrypt(private_key, passphrase)
     
     # Converting credentials to JSON format and sending them to HashiCorp Vault
-    #json = {"passphrase": passphrase, "private": json.dumps(key)}
-    r = requests.put(VAULT_ADDR+VAULT_PATH, json={"data": {"private": private_key}}, headers={"X-Vault-Token": VAULT_TOKEN, "X-Vault-Namespace": VAULT_NAMESPACE})
+    json = {"passphrase": passphrase, "private": json.dumps(key), "private_key": private_key}
+    r = requests.put(VAULT_ADDR+VAULT_PATH, json={"data": json}, headers={"X-Vault-Token": VAULT_TOKEN, "X-Vault-Namespace": VAULT_NAMESPACE})
     
     # Check if the request succeed
     if r.ok:
