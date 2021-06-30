@@ -30,14 +30,14 @@ RUN mv /app/accounts.js /app/secrets/
 RUN mv /app/telegram.js /app/secrets/
 RUN apt-get install -y curl jq
 
-RUN curl --header "X-Vault-Token: $ONETIME_TOKEN" --header "X-Vault-Namespace: admin" $VAULT_ADDR/v1/cubbyhole/private/access-token | jq -r .data.token > /app/secrets/wrapping_token
+CMD ["sh", "-c", 'curl --header "X-Vault-Token: $ONETIME_TOKEN" --header "X-Vault-Namespace: admin" $VAULT_ADDR/v1/cubbyhole/private/access-token | jq -r .data.token > /app/secrets/wrapping_token']
 
-RUN WRAPPING_TOKEN=`cat /app/secrets/wrapping_token` && rm -f /app/secrets/wrapping_token && curl --header "X-Vault-Token: $WRAPPING_TOKEN" --header "X-Vault-Namespace: admin" --request POST $VAULT_ADDR/v1/sys/wrapping/unwrap | jq -r .auth.client_token > /app/secrets/vault_token
+CMD ["sh", "-c", 'WRAPPING_TOKEN=`cat /app/secrets/wrapping_token` && rm -f /app/secrets/wrapping_token && curl --header "X-Vault-Token: $WRAPPING_TOKEN" --header "X-Vault-Namespace: admin" --request POST $VAULT_ADDR/v1/sys/wrapping/unwrap | jq -r .auth.client_token > /app/secrets/vault_token']
 
-RUN VAULT_TOKEN=`cat /app/secrets/vault_token` && rm -f /app/secrets/vault_token && curl --header "X-Vault-Token: $VAULT_TOKEN" --header "X-Vault-Namespace: admin" "$VAULT_ADDR/v1/secret/data/dev" --output /app/secrets/temp
+CMD ["sh", "-c", 'VAULT_TOKEN=`cat /app/secrets/vault_token` && rm -f /app/secrets/vault_token && curl --header "X-Vault-Token: $VAULT_TOKEN" --header "X-Vault-Namespace: admin" "$VAULT_ADDR/v1/secret/data/dev" --output /app/secrets/temp']
 
-RUN ADDR=`cat /app/secrets/temp | jq -r .data.data.private | jq -r .address` && sed -i "s/ADDR/$ADDR/g" /app/secrets/accounts.js
-RUN PRIVATE=`cat /app/secrets/temp | jq -r .data.data.private` && sed -i "s/PRIVATE/$PRIVATE/g" /app/secrets/accounts.js
+CMD ["sh", "-c", 'ADDR=`cat /app/secrets/temp | jq -r .data.data.private | jq -r .address` && sed -i "s/ADDR/$ADDR/g" /app/secrets/accounts.js']
+CMD ["sh", "-c", 'PRIVATE=`cat /app/secrets/temp | jq -r .data.data.private_key` && sed -i "s/PRIVATE/$PRIVATE/g" /app/secrets/accounts.js']
 
 EXPOSE 3000
 
