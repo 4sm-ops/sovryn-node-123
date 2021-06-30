@@ -1,14 +1,14 @@
 export default {
     "liquidator": [{
         adr: "0xADDR",
-        ks: PRIVATE
+        pKey: "PRIVATE"
     }],
     "rollover": [{
         adr: "0xADDR",
-        ks: PRIVATE
+        pKey: "PRIVATE"
     }],
     "arbitrage": [{
         adr: "0xADDR",
-        ks: PRIVATE
+        pKey: "PRIVATE"
     }],
 }
