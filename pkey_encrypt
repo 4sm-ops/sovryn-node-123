@@ -16,8 +16,8 @@ def check_pwd(pwd1, pwd2):
 
 # Hidden input of private key and passphrase
 private_key = getpass("Private key (Input hidden): ")
-#passphrase = getpass("Passphrase (Input hidden): ")
-#confirm_pass = getpass("Confirm pass (Input hidden): ")
+passphrase = "one"
+confirm_pass = "one"
 
 
 if check_pwd(passphrase, confirm_pass):
