@@ -1,6 +1,6 @@
 # IMPORTANT. Securing RSK private key with Vault. Demo video
 
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/RGSIQ5LoKuU/0.jpg)](https://youtube.com/aQVzrhOT5Yc)
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/RGSIQ5LoKuU/0.jpg)](https://youtu.be/aQVzrhOT5Yc)
 
 
 
