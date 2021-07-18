@@ -1,6 +1,6 @@
 # IMPORTANT. Securing RSK private key with Vault. Demo video
 
-[![Watch the video]](https://www.youtube.com/watch?v=aQVzrhOT5Yc)
+https://youtube.com/embed/aQVzrhOT5Yc
 
 # Sovryn Node deployment guide
 
