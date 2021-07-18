@@ -1,6 +1,6 @@
 # IMPORTANT. Securing RSK private key with Vault. Demo video
 
-[![IMAGE ALT TEXT HERE](https://akash.network/_next/image?url=https%3A%2F%2Fwww.datocms-assets.com%2F45776%2F1622211355-sovryn-banner-1024x768.png&w=1920&q=75)](https://youtu.be/aQVzrhOT5Yc)
+[![Securing RSK private key with Vault]()](https://youtu.be/aQVzrhOT5Yc)
 
 
 
