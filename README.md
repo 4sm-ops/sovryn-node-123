@@ -2,7 +2,10 @@
 
 https://youtu.be/aQVzrhOT5Yc
 
+Important notes:
 
+1. http://ce3ueoed7lbr3fak3igb8hc170.ingress.sjc1p0.mainnet.akashian.io - Sovryn Node
+2. https://hub.docker.com/repository/docker/rus7am/sovryn-node-vault03 - Docker repo. Image has only one time (or TTL 20min) Vault token. So we don’t keep sensitive information in config files or in Docker hu
 
 # Sovryn Node deployment guide
 
