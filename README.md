@@ -1,3 +1,7 @@
+# IMPORTANT. Security private key with Vault. Demo video
+
+https://www.youtube.com/watch?v=aQVzrhOT5Yc
+
 # Sovryn Node deployment guide
 
 ## What is a Sovryn Node?
